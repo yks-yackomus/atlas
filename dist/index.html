@@ -7,16 +7,15 @@
 <title>Atlas</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
-<link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight.dcdbf18e.css">
+<link rel="preload" as="style" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
 <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" crossorigin>
-<link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight.dcdbf18e.css">
+<link rel="stylesheet" type="text/css" href="./_observablehq/theme-air,near-midnight,alt,wide.db1cdf55.css">
 <link rel="modulepreload" href="./_observablehq/client.63c4ea48.js">
 <link rel="modulepreload" href="./_observablehq/runtime.f168f711.js">
 <link rel="modulepreload" href="./_observablehq/stdlib.a7574edc.js">
-<link rel="modulepreload" href="./_npm/@observablehq/plot@0.6.16/7bc4434c.js">
 <link rel="modulepreload" href="./_npm/d3@7.9.0/b557a378.js">
-<link rel="modulepreload" href="./_npm/isoformat@0.2.1/c68fbd73.js">
-<link rel="modulepreload" href="./_npm/interval-tree-1d@1.0.4/a62ae5ce.js">
+<link rel="modulepreload" href="./_npm/@observablehq/plot@0.6.16/7bc4434c.js">
+<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
 <link rel="modulepreload" href="./_npm/d3-array@3.2.4/37839b6a.js">
 <link rel="modulepreload" href="./_npm/d3-axis@3.0.0/bd0afa17.js">
 <link rel="modulepreload" href="./_npm/d3-brush@3.0.0/6495590f.js">
@@ -26,7 +25,6 @@
 <link rel="modulepreload" href="./_npm/d3-delaunay@6.0.4/00c41b5d.js">
 <link rel="modulepreload" href="./_npm/d3-dispatch@3.0.1/b5f7cdc6.js">
 <link rel="modulepreload" href="./_npm/d3-drag@3.0.0/ef06b1ff.js">
-<link rel="modulepreload" href="./_npm/d3-dsv@3.0.1/407f7a1f.js">
 <link rel="modulepreload" href="./_npm/d3-ease@3.0.1/6f15f633.js">
 <link rel="modulepreload" href="./_npm/d3-fetch@3.0.1/35880c2a.js">
 <link rel="modulepreload" href="./_npm/d3-force@3.0.0/60bb70b3.js">
@@ -47,14 +45,19 @@
 <link rel="modulepreload" href="./_npm/d3-timer@3.0.1/f31b5398.js">
 <link rel="modulepreload" href="./_npm/d3-transition@3.0.1/0c259fbf.js">
 <link rel="modulepreload" href="./_npm/d3-zoom@3.0.0/da4a6ccc.js">
-<link rel="modulepreload" href="./_npm/binary-search-bounds@2.0.5/1ee6c50d.js">
+<link rel="modulepreload" href="./_npm/isoformat@0.2.1/c68fbd73.js">
+<link rel="modulepreload" href="./_npm/interval-tree-1d@1.0.4/a62ae5ce.js">
 <link rel="modulepreload" href="./_npm/internmap@2.0.3/5eed35fd.js">
 <link rel="modulepreload" href="./_npm/delaunator@5.0.1/e67acb27.js">
+<link rel="modulepreload" href="./_npm/binary-search-bounds@2.0.5/1ee6c50d.js">
 <link rel="modulepreload" href="./_npm/robust-predicates@3.0.2/8ac9039b.js">
-<link rel="icon" href="./_file/observable.1af93621.png" type="image/png" sizes="32x32">
+<link rel="icon" href="./_file/favicon.528cba2c.png" type="image/png" sizes="32x32">
 <script type="module">
 
 import {define} from "./_observablehq/client.63c4ea48.js";
+import {registerFile} from "./_observablehq/stdlib.a7574edc.js";
+
+registerFile("./data/launches.csv", {"name":"./data/launches.csv","mimeType":"text/csv","path":"./_file/data/launches.1d338611.csv","lastModified":1737154891761,"size":762993});
 
 define({id: "7935742a", mode: "inline", inputs: ["resize","Plot","aapl","display"], body: async (resize,Plot,aapl,display) => {
 display(await(
@@ -90,34 +93,167 @@ display(await(
 ))
 }});
 
+define({id: "7a66a2dd", inputs: ["FileAttachment"], outputs: ["launches"], body: (FileAttachment) => {
+const launches = FileAttachment("./data/launches.csv").csv({typed: true});
+return {launches};
+}});
+
+define({id: "fdf7eadc", inputs: ["Plot","d3","launches"], outputs: ["color"], body: (Plot,d3,launches) => {
+const color = Plot.scale({
+  color: {
+    type: "categorical",
+    domain: d3.groupSort(launches, (D) => -D.length, (d) => d.state).filter((d) => d !== "Other"),
+    unknown: "var(--theme-foreground-muted)"
+  }
+});
+return {color};
+}});
+
+define({id: "92cac4f1", mode: "inline", inputs: ["launches","display"], body: async (launches,display) => {
+display(await(
+launches.filter((d) => d.stateId === "US").length.toLocaleString("en-US")
+))
+}});
+
+define({id: "f84e9749", mode: "inline", inputs: ["launches","display"], body: async (launches,display) => {
+display(await(
+launches.filter((d) => d.stateId === "SU" || d.stateId === "RU").length.toLocaleString("en-US")
+))
+}});
+
+define({id: "3f89d55f", mode: "inline", inputs: ["launches","display"], body: async (launches,display) => {
+display(await(
+launches.filter((d) => d.stateId === "CN").length.toLocaleString("en-US")
+))
+}});
+
+define({id: "d55bddad", mode: "inline", inputs: ["launches","display"], body: async (launches,display) => {
+display(await(
+launches.filter((d) => d.stateId !== "US" && d.stateId !== "SU" && d.stateId !== "RU" && d.stateId !== "CN").length.toLocaleString("en-US")
+))
+}});
+
+define({id: "a6446d56", inputs: ["Plot","color"], outputs: ["launchTimeline"], body: (Plot,color) => {
+function launchTimeline(data, {width} = {}) {
+  return Plot.plot({
+    title: "Launches over the years",
+    width,
+    height: 300,
+    y: {grid: true, label: "Launches"},
+    color: {...color, legend: true},
+    marks: [
+      Plot.rectY(data, Plot.binX({y: "count"}, {x: "date", fill: "state", interval: "year", tip: true})),
+      Plot.ruleY([0])
+    ]
+  });
+}
+return {launchTimeline};
+}});
+
+define({id: "da415336", mode: "inline", inputs: ["resize","launchTimeline","launches","display"], body: async (resize,launchTimeline,launches,display) => {
+display(await(
+resize((width) => launchTimeline(launches, {width}))
+))
+}});
+
+define({id: "bdc917ac", inputs: ["Plot","color"], outputs: ["vehicleChart"], body: (Plot,color) => {
+function vehicleChart(data, {width}) {
+  return Plot.plot({
+    title: "Popular launch vehicles",
+    width,
+    height: 300,
+    marginTop: 0,
+    marginLeft: 50,
+    x: {grid: true, label: "Launches"},
+    y: {label: null},
+    color: {...color, legend: true},
+    marks: [
+      Plot.rectX(data, Plot.groupY({x: "count"}, {y: "family", fill: "state", tip: true, sort: {y: "-x"}})),
+      Plot.ruleX([0])
+    ]
+  });
+}
+return {vehicleChart};
+}});
+
+define({id: "87987196", mode: "inline", inputs: ["resize","vehicleChart","launches","display"], body: async (resize,vehicleChart,launches,display) => {
+display(await(
+resize((width) => vehicleChart(launches, {width}))
+))
+}});
+
 </script>
 </head>
 <body>
-<input id="observablehq-sidebar-toggle" type="checkbox" title="Toggle sidebar">
-<label id="observablehq-sidebar-backdrop" for="observablehq-sidebar-toggle"></label>
-<nav id="observablehq-sidebar">
-  <ol>
-    <label id="observablehq-sidebar-close" for="observablehq-sidebar-toggle"></label>
-    <li class="observablehq-link observablehq-link-active"><a href="./">Atlas</a></li>
-  </ol>
-  <ol>
-    <li class="observablehq-link"><a href="./example-dashboard">Example dashboard</a></li>
-    <li class="observablehq-link"><a href="./example-report">Example report</a></li>
-  </ol>
-</nav>
-<script>{const e=document.querySelector("#observablehq-sidebar"),o=document.querySelector("#observablehq-sidebar-toggle"),r=sessionStorage.getItem("observablehq-sidebar");r?o.checked=r==="true":o.indeterminate=!0;for(const t of document.querySelectorAll("#observablehq-sidebar summary")){const s=t.parentElement;switch(sessionStorage.getItem(`observablehq-sidebar:${t.textContent}`)){case"true":s.open=!0;break;case"false":s.classList.contains("observablehq-section-active")||(s.open=!1);break}}addEventListener("beforeunload",()=>sessionStorage.setItem("observablehq-sidebar-scrolly",`${e.scrollTop}`));const a=sessionStorage.getItem("observablehq-sidebar-scrolly");a!=null&&(e.style.cssText="overflow: hidden;",e.scrollTop=+a,e.style.cssText="");}</script>
 <div id="observablehq-center">
+<header id="observablehq-header">
+<a target="_self" href="https://yackomus.com" style="text-decoration:none" rel="noopener noreferrer">Yackomus</a><a>✦ ATLAS</a>
+</header>
+<aside id="observablehq-toc" data-selector="h1:not(:first-of-type)[id], h2:first-child[id], :not(h1) + h2[id]">
+<nav>
+<div>Index</div>
+<ol>
+<li class="observablehq-secondary-link"><a href="#plots-in-cards">Plots in cards</a></li>
+<li class="observablehq-secondary-link"><a href="#rocket-launches">Rocket launches 🚀</a></li>
+<li class="observablehq-secondary-link"><a href="#next-steps">Next steps</a></li>
+<li class="observablehq-secondary-link"><a href="#conclusion">Conclusion</a></li>
+</ol>
+</nav>
+</aside>
 <main id="observablehq-main" class="observablehq">
-<div class="hero">
-  <h1>Atlas</h1>
+<h2 id="plots-in-cards" tabindex="-1"><a class="observablehq-header-anchor" href="#plots-in-cards">Plots in cards</a></h2>
+<!-- <div class="hero">
+  <h1>Politica</h1>
   <h2>Welcome to your new app! Edit&nbsp;<code style="font-size: 90%;">src/index.md</code> to change this page.</h2>
-  <a href="https://observablehq.com/framework/getting-started" target="_blank" rel="noopener noreferrer">Get started<span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
-</div>
+  <a href="https://observablehq.com/framework/getting-started">Get started<span style="display: inline-block; margin-left: 0.25rem;">↗︎</span></a>
+</div> -->
 <div class="grid grid-cols-2" style="grid-auto-rows: 504px;">
   <div class="card"><observablehq-loading></observablehq-loading><!--:7935742a:--></div>
   <div class="card"><observablehq-loading></observablehq-loading><!--:699041c1:--></div>
 </div>
 <hr>
+<h2 id="rocket-launches" tabindex="-1"><a class="observablehq-header-anchor" href="#rocket-launches">Rocket launches 🚀</a></h2>
+<!-- Load and transform the data -->
+<div class="observablehq observablehq--block"><!--:7a66a2dd:--></div>
+<!-- A shared color scale for consistency, sorted by the number of launches -->
+<div class="observablehq observablehq--block"><!--:fdf7eadc:--></div>
+<h3 id="cards-with-big-numbers" tabindex="-1"><a class="observablehq-header-anchor" href="#cards-with-big-numbers">Cards with big numbers</a></h3>
+<!-- Cards with big numbers -->
+<div class="grid grid-cols-4">
+  <div class="card">
+    <h2>United States 🇺🇸</h2>
+    <span class="big"><observablehq-loading></observablehq-loading><!--:92cac4f1:--></span>
+  </div>
+  <div class="card">
+    <h2>Russia 🇷🇺 <span class="muted">/ Soviet Union</span></h2>
+    <span class="big"><observablehq-loading></observablehq-loading><!--:f84e9749:--></span>
+  </div>
+  <div class="card">
+    <h2>China 🇨🇳</h2>
+    <span class="big"><observablehq-loading></observablehq-loading><!--:3f89d55f:--></span>
+  </div>
+  <div class="card">
+    <h2>Other</h2>
+    <span class="big"><observablehq-loading></observablehq-loading><!--:d55bddad:--></span>
+  </div>
+</div>
+<h3 id="plot-of-launch-history" tabindex="-1"><a class="observablehq-header-anchor" href="#plot-of-launch-history">Plot of launch history</a></h3>
+<!-- Plot of launch history -->
+<div class="observablehq observablehq--block"><!--:a6446d56:--></div>
+<div class="grid grid-cols-1">
+  <div class="card">
+    <observablehq-loading></observablehq-loading><!--:da415336:-->
+  </div>
+</div>
+<h3 id="plot-of-launch-vehicles" tabindex="-1"><a class="observablehq-header-anchor" href="#plot-of-launch-vehicles">Plot of launch vehicles</a></h3>
+<!-- Plot of launch vehicles -->
+<div class="observablehq observablehq--block"><!--:bdc917ac:--></div>
+<div class="grid grid-cols-1">
+  <div class="card">
+    <observablehq-loading></observablehq-loading><!--:87987196:-->
+  </div>
+</div>
+<p>Data: Jonathan C. McDowell, <a href="https://planet4589.org/space/gcat" target="_blank" rel="noopener noreferrer">General Catalog of Artificial Space Objects</a></p>
 <h2 id="next-steps" tabindex="-1"><a class="observablehq-header-anchor" href="#next-steps">Next steps</a></h2>
 <p>Here are some ideas of things you could try…</p>
 <div class="grid grid-cols-4">
@@ -143,6 +279,11 @@ display(await(
     Visit <a href="https://github.com/observablehq/framework" target="_blank" rel="noopener noreferrer">Framework on GitHub</a> and give us a star. Or file an issue if you’ve found a bug!
   </div>
 </div>
+<h2 id="conclusion" tabindex="-1"><a class="observablehq-header-anchor" href="#conclusion">Conclusion</a></h2>
+<p>.</p>
+<p>.</p>
+<p>.</p>
+<p>.</p>
 <style>
 
 .hero {
@@ -187,8 +328,9 @@ display(await(
 </style>
 </main>
 <footer id="observablehq-footer">
-<nav><a rel="next" href="./example-dashboard"><span>Example dashboard</span></a></nav>
-<div>Built with <a href="https://observablehq.com/" target="_blank" rel="noopener noreferrer">Observable</a> on <a title="2025-01-17T20:01:09">Jan 17, 2025</a>.</div>
+<div><div style="display: flex; flex-direction: row; align-items: center;justify-content: center;">
+    <p>Copyright © 2025 Thiago Oliveira</p>
+</div></div>
 </footer>
 </div>
 </body>
